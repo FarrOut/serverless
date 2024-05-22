@@ -3,16 +3,44 @@ import * as cdk from "aws-cdk-lib";
 import * as sns from "aws-cdk-lib/aws-sns";
 import { TheAdvancedWebserviceStack } from "../lib/the-advanced-webservice-stack";
 
-describe("TheAdvancedWebserviceStack", () => {
+describe("the stack", () => {
+
     test("synthesizes the way we expect", () => {
         const app = new cdk.App();
 
-        // Create the StateMachineStack.
-        const theStack = new TheAdvancedWebserviceStack(app, "StateMachineStack", {
+        const stack = new TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack", {
         });
 
         // Prepare the stack for assertions.
-        const template = Template.fromStack(theStack);
+        const template = Template.fromStack(stack);
 
     });
+
+
+    test('creates the expected number of API Gateways', () => {
+        const app = new cdk.App();
+
+        // WHEN
+        const stack = new TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack", {
+        });
+
+        // Prepare the stack for assertions.
+        const template = Template.fromStack(stack);
+
+        // THEN
+        template.resourceCountIs('AWS::ApiGateway::RestApi', 1);
+    });
+
+
+
+
+
+
+
+
+
+
+
 });
+
+
