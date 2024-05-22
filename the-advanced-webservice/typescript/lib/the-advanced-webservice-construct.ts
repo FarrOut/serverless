@@ -14,11 +14,11 @@ import { HttpUrlIntegration, HttpLambdaIntegration } from 'aws-cdk-lib/aws-apiga
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as certificate from 'aws-cdk-lib/aws-certificatemanager';
-import { App, Duration, Stack, NestedStack, NestedStackProps } from 'aws-cdk-lib';
+import { App, Duration, Stack, NestedStack, NestedStackProps, StackProps } from 'aws-cdk-lib';
 import * as logs from 'aws-cdk-lib/aws-logs';
 
 
-export interface TheAdvancedWebserviceConstructProps {
+export interface TheAdvancedWebserviceConstructProps extends StackProps {
   //define construct properties here
   //required properties
   createvpc?: boolean;
