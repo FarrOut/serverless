@@ -43,6 +43,12 @@ def test_synthesizes_properly():
 
     #### creates API Gateway resources with...
 
+
+def test_api_gateway():
+    app = App()
+    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
+    template = assertions.Template.from_stack(stack)
+
     # the expected number of API Gateway APIs
     template.resource_count_is("AWS::ApiGateway::RestApi", 1)
 
@@ -54,10 +60,22 @@ def test_synthesizes_properly():
 
     #### creates Lambda resources with...
 
+
+def test_lambda():
+    app = App()
+    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
+    template = assertions.Template.from_stack(stack)
+
     # the expected number of Lambda functions
     template.resource_count_is("AWS::Lambda::Function", 1)
 
     #### creates RDS resources with...
+
+
+def test_rds():
+    app = App()
+    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
+    template = assertions.Template.from_stack(stack)
 
     # the expected number of RDS Clusters
     template.resource_count_is("AWS::RDS::DBCluster", 1)
@@ -86,7 +104,13 @@ def test_synthesizes_properly():
     # the expected number of RDS proxies
     template.resource_count_is("AWS::RDS::DBProxy", 1)
 
-    #### creates VPC resources with
+
+#### creates VPC resources with
+def test_vpc():
+    app = App()
+    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
+    template = assertions.Template.from_stack(stack)
+
     # the expected number of VPCs
     template.resource_count_is("AWS::EC2::VPC", 1)
 
@@ -112,7 +136,12 @@ def test_synthesizes_properly():
     # the expected number of VPC subnets
     template.resource_count_is("AWS::EC2::Subnet", 4)
 
-    #### creates CloudFront resources with
+
+#### creates CloudFront resources with
+def test_cloudfront():
+    app = App()
+    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
+    template = assertions.Template.from_stack(stack)
 
     # the expected number of Distriutions
     template.resource_count_is("AWS::CloudFront::Distribution", 1)
