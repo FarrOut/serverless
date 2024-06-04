@@ -115,14 +115,12 @@ def test_vpc():
             "EnableDnsHostnames": True,
             "EnableDnsSupport": True,
             "InstanceTenancy": "default",
-            Tags: Match.arrayWith(
-                [
-                    {
-                        "Key": "Name",
-                        "Value": "TheAdvancedWebserviceStack/ServerlessApp/testvpc",
-                    }
-                ]
-            ),
+            "Tags": [
+                {
+                    "Key": "Name",
+                    "Value": "TheAdvancedWebserviceStack/TheAdvancedWebservice/NewVpc",
+                }
+            ],
         },
     )
 

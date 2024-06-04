@@ -33,6 +33,7 @@ class TheAdvancedWebserviceStack(Stack):
         api_name: str,
         stage_name: str,
         origin_path: str,
+        vpc_id: str = None,
         **kwargs
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -41,6 +42,7 @@ class TheAdvancedWebserviceStack(Stack):
             self,
             "TheAdvancedWebservice",
             create_vpc=create_vpc,
+            vpc_id=vpc_id,
             vpc_az=vpc_az,
             create_lambda=create_lambda,
             create_hostedzone=create_hostedzone,

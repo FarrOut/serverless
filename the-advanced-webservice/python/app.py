@@ -18,10 +18,8 @@ from the_advanced_webservice.the_advanced_webservice_stack import (
 
 app = App()
 
-env = (
-    Environment(
-        account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
-    ),
+env = Environment(
+    account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
 )
 
 TheAdvancedWebserviceStack(
