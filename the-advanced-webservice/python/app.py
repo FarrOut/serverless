@@ -18,33 +18,31 @@ from the_advanced_webservice.the_advanced_webservice_stack import (
 
 app = App()
 
-env=Environment(
+env = (
+    Environment(
         account=os.getenv("CDK_DEFAULT_ACCOUNT"), region=os.getenv("CDK_DEFAULT_REGION")
     ),
-
-test_props = {
-    
-    "createvpc": True,
-    "vpcAz": 2,
-    "createlambda": True,
-    "createhostedzone": False,
-    "createrdscluster": True,
-    "lambdaCodeFilePath": "./function/app.py.zip",
-    "runTime": lambda_.Runtime.PYTHON_3_12,
-    "databaseEngine": rds.DatabaseClusterEngine.aurora_mysql(
-        version=rds.AuroraMysqlEngineVersion.VER_3_06_0
-    ),
-    "existingDomainName": "xxxxxxx.awsps.myinstance.com",
-    # existingHostedZoneId: "XXXXXXXXXXXXXXXX",
-    "apiName": "myapi",
-    "stageName": "dev",
-    "originPath": "/dev",
-}
+)
 
 TheAdvancedWebserviceStack(
     app,
     "TheAdvancedWebserviceStack",
-    
+    env=env,
+    create_vpc=True,
+    vpc_az=2,
+    create_lambda=True,
+    create_hostedzone=False,
+    create_rdscluster=True,
+    lambda_code_file_path="./function/app.py.zip",
+    run_time=lambda_.Runtime.PYTHON_3_12,
+    database_engine=rds.DatabaseClusterEngine.aurora_mysql(
+        version=rds.AuroraMysqlEngineVersion.VER_3_06_0
+    ),
+    existing_domain_name="xxxxxxx.awsps.myinstance.com",
+    # existing_hosted_zone_id="XXXXXXXXXXXXXXXX",
+    api_name="myapi",
+    stage_name="dev",
+    origin_path="/dev",
 )
 
 app.synth()

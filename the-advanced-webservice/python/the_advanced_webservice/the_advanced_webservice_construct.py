@@ -9,12 +9,8 @@ from aws_cdk import (
 from constructs import Construct
 from aws_cdk import aws_lambda as lambda_
 
-from the_advanced_webservice.the_advanced_webservice_construct import (
-    TheAdvancedWebservice,
-)
 
-
-class TheAdvancedWebserviceStack(Stack):
+class TheAdvancedWebservice(Construct):
 
     def __init__(
         self,
@@ -36,21 +32,3 @@ class TheAdvancedWebserviceStack(Stack):
         **kwargs
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
-
-        TheAdvancedWebservice(
-            self,
-            "TheAdvancedWebservice",
-            create_vpc=create_vpc,
-            vpc_az=vpc_az,
-            create_lambda=create_lambda,
-            create_hostedzone=create_hostedzone,
-            create_rdscluster=create_rdscluster,
-            lambda_code_file_path=lambda_code_file_path,
-            run_time=run_time,
-            database_engine=database_engine,
-            existing_domain_name=existing_domain_name,
-            # existing_hosted_zone_id= str,
-            api_name=api_name,
-            stage_name=stage_name,
-            origin_path=origin_path,
-        )
