@@ -17,36 +17,35 @@ from the_advanced_webservice.the_advanced_webservice_stack import (
     TheAdvancedWebserviceStack,
 )
 
-test_props = {
-    "createvpc": True,
-    "vpcAz": 2,
-    "createlambda": True,
-    "createhostedzone": False,
-    "createrdscluster": True,
-    "lambdaCodeFilePath": "./function/app.py.zip",
-    "runTime": lambda_.Runtime.PYTHON_3_12,
-    "databaseEngine": rds.DatabaseClusterEngine.aurora_mysql(
+app = App()
+stack = TheAdvancedWebserviceStack(
+    app,
+    "TheAdvancedWebserviceStack",
+    create_vpc=True,
+    vpc_az=2,
+    create_lambda=True,
+    create_hostedzone=False,
+    create_rdscluster=True,
+    lambda_code_file_path="./function/app.py.zip",
+    run_time=lambda_.Runtime.PYTHON_3_12,
+    database_engine=rds.DatabaseClusterEngine.aurora_mysql(
         version=rds.AuroraMysqlEngineVersion.VER_3_06_0
     ),
-    "existingDomainName": "xxxxxxx.awsps.myinstance.com",
-    # existingHostedZoneId: "XXXXXXXXXXXXXXXX",
-    "apiName": "myapi",
-    "stageName": "dev",
-    "originPath": "/dev",
-}
+    existing_domain_name="xxxxxxx.awsps.myinstance.com",
+    # existing_hosted_zone_id="XXXXXXXXXXXXXXXX",
+    api_name="myapi",
+    stage_name="dev",
+    origin_path="/dev",
+)
 
 
 def test_synthesizes_properly():
-    app = App()
-    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
     template = assertions.Template.from_stack(stack)
 
     #### creates API Gateway resources with...
 
 
 def test_api_gateway():
-    app = App()
-    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
     template = assertions.Template.from_stack(stack)
 
     # the expected number of API Gateway APIs
@@ -62,8 +61,6 @@ def test_api_gateway():
 
 
 def test_lambda():
-    app = App()
-    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
     template = assertions.Template.from_stack(stack)
 
     # the expected number of Lambda functions
@@ -73,8 +70,6 @@ def test_lambda():
 
 
 def test_rds():
-    app = App()
-    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
     template = assertions.Template.from_stack(stack)
 
     # the expected number of RDS Clusters
@@ -107,8 +102,6 @@ def test_rds():
 
 #### creates VPC resources with
 def test_vpc():
-    app = App()
-    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
     template = assertions.Template.from_stack(stack)
 
     # the expected number of VPCs
@@ -139,8 +132,6 @@ def test_vpc():
 
 #### creates CloudFront resources with
 def test_cloudfront():
-    app = App()
-    stack = TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack")
     template = assertions.Template.from_stack(stack)
 
     # the expected number of Distriutions
