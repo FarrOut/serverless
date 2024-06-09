@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     RemovalPolicy,
     aws_apigateway as apigw,
+    aws_logs as logs,
     aws_rds as rds,
 )
 from constructs import Construct
@@ -91,6 +92,8 @@ class TheAdvancedWebservice(Construct):
                 same_environment=True,
             )
 
+        myrds = (None,)
+
         if create_rdscluster:
             subnet_group = rds.SubnetGroup(
                 self,
@@ -164,3 +167,41 @@ class TheAdvancedWebservice(Construct):
                 "testrds",
                 cluster_identifier=existing_rds_cluster_identifier,
             )
+
+        myrds.node.add_dependency(lambda_function)
+
+        my_api = apigw.RestApi(
+            self,
+            "myapi",
+            rest_api_name=api_name,
+        )
+
+        deployment = apigw.Deployment(
+            self,
+            "Deployment",
+            api=my_api,
+            retain_deployments=True,
+        )
+
+        api_log_group = logs.LogGroup(
+            self,
+            "apiLogs",
+        )
+        stage = apigw.Stage(
+            self,
+            "Stage",
+            deployment=deployment,
+            stage_name=stage_name,
+            access_log_destination=apigw.LogGroupLogDestination(api_log_group),
+            access_log_format=apigw.AccessLogFormat.clf(),
+            tracing_enabled=True,
+            logging_level=apigw.MethodLoggingLevel.INFO,
+        )
+
+        method = apigw.Method(
+            self,
+            "Method",
+            http_method="GET",
+            resource=my_api.root,
+            integration=apigw.LambdaIntegration(lambda_function),
+        )
