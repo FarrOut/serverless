@@ -34,6 +34,7 @@ class TheAdvancedWebserviceStack(Stack):
         stage_name: str,
         origin_path: str,
         vpc_id: str = None,
+        existing_rds_cluster_identifier: str = None,
         **kwargs
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -50,6 +51,7 @@ class TheAdvancedWebserviceStack(Stack):
             lambda_code_file_path=lambda_code_file_path,
             run_time=run_time,
             database_engine=database_engine,
+            existing_rds_cluster_identifier=existing_rds_cluster_identifier,
             existing_domain_name=existing_domain_name,
             # existing_hosted_zone_id= str,
             api_name=api_name,

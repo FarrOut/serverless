@@ -87,9 +87,9 @@ def test_rds():
             "ServerlessV2ScalingConfiguration": {"MaxCapacity": 64, "MinCapacity": 2},
             "StorageEncrypted": True,
             "StorageType": "aurora",
-            "VpcSecurityGroupIds": [{"Fn::GetAtt": [Match.anyValue(), "GroupId"]}],
-            "MasterUserPassword": Match.anyValue(),
-            "MasterUsername": Match.anyValue(),
+            "VpcSecurityGroupIds": [{"Fn::GetAtt": [Match.any_value(), "GroupId"]}],
+            "MasterUserPassword": Match.any_value(),
+            "MasterUsername": Match.any_value(),
         },
     )
 

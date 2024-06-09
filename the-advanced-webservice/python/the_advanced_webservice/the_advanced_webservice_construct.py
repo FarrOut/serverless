@@ -5,6 +5,7 @@ from aws_cdk import (
     Tags,
     aws_lambda as lambda_,
     aws_ec2 as ec2,
+    RemovalPolicy,
     aws_apigateway as apigw,
     aws_rds as rds,
 )
@@ -26,7 +27,7 @@ class TheAdvancedWebservice(Construct):
         create_rdscluster: bool,
         lambda_code_file_path: str,
         run_time: lambda_.Runtime,
-        database_engine: rds.DatabaseClusterEngine,
+        database_engine: rds.IClusterEngine,
         existing_domain_name: str,
         # existing_hosted_zone_id: str,
         api_name: str,
@@ -34,19 +35,22 @@ class TheAdvancedWebservice(Construct):
         origin_path: str,
         vpc_id: str = None,
         function_arn: str = None,
+        existing_rds_cluster_identifier: str = None,
         **kwargs
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        myvpc = None
+
         if create_vpc:
-            vpc = ec2.Vpc(
+            myvpc = ec2.Vpc(
                 self,
                 "NewVpc",
                 max_azs=vpc_az,
                 ip_addresses=ec2.IpAddresses.cidr("10.0.0.0/16"),
             )
         else:
-            vpc = ec2.Vpc.from_lookup(self, "ImportedVpc", vpc_id=vpc_id)
+            myvpc = ec2.Vpc.from_lookup(self, "ImportedVpc", vpc_id=vpc_id)
 
         lambda_function = None
         lambda_role = None
@@ -76,7 +80,7 @@ class TheAdvancedWebservice(Construct):
                 runtime=run_time,
                 code=lambda_.Code.from_asset(lambda_code_file_path),
                 handler="rdsLambda.handler",
-                vpc=vpc,
+                vpc=myvpc,
                 role=lambda_role,
             )
         else:
@@ -85,4 +89,78 @@ class TheAdvancedWebservice(Construct):
                 "ImportedLambda",
                 function_arn=function_arn,
                 same_environment=True,
+            )
+
+        if create_rdscluster:
+            subnet_group = rds.SubnetGroup(
+                self,
+                "MySubnetGroup",
+                description="test subnet group",
+                vpc=myvpc,
+                removal_policy=RemovalPolicy.DESTROY,
+                subnet_group_name="subnetGroupName",
+                vpc_subnets=ec2.SubnetSelection(
+                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
+                ),
+            )
+
+            parameter_group = rds.ParameterGroup(
+                self,
+                "ParameterGroup",
+                engine=database_engine,
+                parameters={"aws_default_lambda_role": "mylambdaexecutionrole"},
+            )
+
+            my_cluster_credentials = rds.DatabaseSecret(
+                self, "myrdsscreds", username="ClusterAdmin", secret_name="myrdsscreds"
+            )
+
+            myrds = rds.DatabaseCluster(
+                self,
+                "testauroracluster",
+                engine=database_engine,
+                default_database_name="demos",
+                credentials=rds.Credentials.from_secret(
+                    my_cluster_credentials, username="clusteradmin"
+                ),
+                parameter_group=parameter_group,
+                subnet_group=subnet_group,
+                storage_encrypted=True,
+                port=3306,
+                writer=rds.ClusterInstance.serverless_v2("writer"),
+                readers=[
+                    rds.ClusterInstance.serverless_v2("reader", scale_with_writer=True),
+                ],
+                serverless_v2_max_capacity=64,
+                serverless_v2_min_capacity=2,
+                vpc=myvpc,
+                storage_type=rds.DBClusterStorageType.AURORA,
+            )
+
+            myrds.add_rotation_single_user(
+                automatically_after=Duration.days(30),
+                rotate_immediately_on_update=True,
+            )
+
+            my_cluster_proxy = rds.DatabaseProxy(
+                self,
+                "myrdsproxy",
+                secrets=[my_cluster_credentials],
+                proxy_target=rds.ProxyTarget.from_cluster(myrds),
+                vpc=myvpc,
+            )
+
+            my_cluster_proxy.grant_connect(
+                iam.Role.from_role_name(
+                    self,
+                    "mylambdarole",
+                    role_name="mylambdaexecutionrole",
+                )
+            )
+
+        else:
+            myrds = rds.DatabaseCluster.from_database_cluster_attributes(
+                self,
+                "testrds",
+                cluster_identifier=existing_rds_cluster_identifier,
             )
