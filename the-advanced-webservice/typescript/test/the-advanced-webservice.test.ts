@@ -148,18 +148,6 @@ describe("the stack", () => {
             // THEN
             template.resourceCountIs("AWS::RDS::DBInstance", 2);
         });
-        test('the expected number of RDS instances', () => {
-            const app = new cdk.App();
-
-            // WHEN
-            const stack = new TheAdvancedWebserviceStack(app, "TheAdvancedWebserviceStack", test_props);
-
-            // Prepare the stack for assertions.
-            const template = Template.fromStack(stack);
-
-            // THEN
-            template.resourceCountIs("AWS::RDS::DBInstance", 2);
-        });
         test('the expected number of RDS proxies', () => {
             const app = new cdk.App();
 

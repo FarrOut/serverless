@@ -31,13 +31,13 @@ TheAdvancedWebserviceStack(
     create_lambda=True,
     create_hostedzone=False,
     create_rdscluster=True,
-    lambda_code_file_path="./function/app.py.zip",
+    lambda_code_file_path="../function/app.py.zip",
     run_time=lambda_.Runtime.PYTHON_3_12,
     database_engine=rds.DatabaseClusterEngine.aurora_mysql(
         version=rds.AuroraMysqlEngineVersion.VER_3_06_0
     ),
-    existing_domain_name="xxxxxxx.awsps.myinstance.com",
-    # existing_hosted_zone_id="XXXXXXXXXXXXXXXX",
+    domain_name="xxxxxxx.awsps.myinstance.com",
+    existing_hosted_zone_id=None,
     api_name="myapi",
     stage_name="dev",
     origin_path="/dev",

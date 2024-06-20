@@ -5,9 +5,13 @@ from aws_cdk import (
     Tags,
     aws_lambda as lambda_,
     aws_ec2 as ec2,
+    aws_cloudfront as cloudfront,
     RemovalPolicy,
     aws_apigateway as apigw,
     aws_logs as logs,
+    aws_route53_targets as targets,
+    aws_route53 as route53,
+    aws_cloudfront_origins as origins,
     aws_rds as rds,
 )
 from constructs import Construct
@@ -29,14 +33,19 @@ class TheAdvancedWebservice(Construct):
         lambda_code_file_path: str,
         run_time: lambda_.Runtime,
         database_engine: rds.IClusterEngine,
-        existing_domain_name: str,
-        # existing_hosted_zone_id: str,
         api_name: str,
         stage_name: str,
         origin_path: str,
+        domain_name: str,
+        existing_hosted_zone_id: str,
         vpc_id: str = None,
         function_arn: str = None,
+        # existing_domain_name: str = None,
+        # new_domain_name: str = None,
+        # existing_hosted_zone_id: str = None,
         existing_rds_cluster_identifier: str = None,
+        record_subdomain_name: str = None,
+        create_public_hosted_zone: bool = False,
         **kwargs
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -205,3 +214,41 @@ class TheAdvancedWebservice(Construct):
             resource=my_api.root,
             integration=apigw.LambdaIntegration(lambda_function),
         )
+
+        my_distro = cloudfront.Distribution(
+            self,
+            "mydist",
+            default_behavior=cloudfront.BehaviorOptions(
+                origin=origins.RestApiOrigin(my_api, origin_path=origin_path)
+            ),
+        )
+
+        if create_hostedzone is False and existing_hosted_zone_id is not None:
+            my_hosted_zone = route53.HostedZone.from_hosted_zone_attributes(
+                self,
+                "testhostedzone",
+                hosted_zone_id=existing_hosted_zone_id,
+                zone_name=domain_name,
+            )
+        elif create_public_hosted_zone is False:
+            my_hosted_zone = route53.PrivateHostedZone(
+                self,
+                "testhostedzone",
+                zone_name=domain_name,
+                vpc=myvpc,
+            )
+        else:
+            my_hosted_zone = route53.PublicHostedZone(
+                self,
+                "testhostedzone",
+                zone_name=domain_name,
+            )
+
+        my_record_set = route53.ARecord(
+            self,
+            "myrecord",
+            zone=my_hosted_zone,
+            record_name=record_subdomain_name,
+            target=route53.RecordTarget.from_alias(targets.CloudFrontTarget(my_distro)),
+        )
+        my_record_set.node.add_dependency(my_distro)
